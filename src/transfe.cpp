@@ -1,4 +1,4 @@
-#include "debug.hpp"
+#include "transfe.hpp"
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -6,7 +6,7 @@
 #include <fcntl.h>			//Used for UART
 #include <termios.h>		//Used for UART
 //#define SERIAL_DEVICE "/dev/ttyS1"
-debug::debug(uint32_t baud,char *port)
+transfe::transfe(uint32_t baud,char *port)
 {  
     int fp =-1;
     uart_ = 1;
@@ -14,10 +14,10 @@ debug::debug(uint32_t baud,char *port)
 	if (fp == -1)
 	{   
         uart_ = 0;
-		printf("Error - Unable to open UART.  Ensure it is not in use by another application\n");
+		printf("Error - Unable to open UART.\n");
 	}
    	tcgetattr(fp, &options);
-	options.c_cflag = baud | CS8 | CLOCAL | CREAD;		//<Set baud rate
+	options.c_cflag = baud | CS8 | CLOCAL | CREAD;	
 	options.c_iflag = IGNPAR;
 	options.c_oflag = 0;
 	options.c_lflag = 0;
@@ -25,15 +25,15 @@ debug::debug(uint32_t baud,char *port)
 	tcsetattr(fp, TCSANOW, &options);
 
 }
-debug::~debug()
+transfe::~transfe()
 {
 }
 
-int debug::ISuartReady()
+int transfe::ISuartReady()
 {
     return uart_;
 }
-void debug::reverse( char *str, int len)
+void transfe::reverse( char *str, int len)
 {
     int i = sig, j = len - 1, temp;
     while (i < j) {
@@ -44,7 +44,7 @@ void debug::reverse( char *str, int len)
         j--;
     }
 }
-int debug::intToStr(int x,  char *str, int d)
+int transfe::intToStr(int x,  char *str, int d)
 {
     while (x) {
         str[index++] = (x % 10) + '0';
@@ -57,7 +57,7 @@ int debug::intToStr(int x,  char *str, int d)
     return index;
 }
 
-void debug::write_char(char *str)
+void transfe::write_char(char *str)
 {
     if (fp = -1)return;
     uint16_t len=0;
@@ -65,7 +65,7 @@ void debug::write_char(char *str)
 	write(fp,str,len);		
 }
 
-void debug:: write_int(int x)
+void transfe:: write_int(int x)
 {   
     index=0;
     sig = 0;
@@ -80,7 +80,7 @@ void debug:: write_int(int x)
     int len = intToStr(x,str_,0);
     write(fp,str_,len);	
 }
-void debug::send_data(char rate_x,char rate_y,unsigned char quality)
+void transfe::send_data(char rate_x,char rate_y,unsigned char quality)
 {
    char str[7];
    str[0] = 0xb5;

@@ -1,8 +1,8 @@
-#ifndef _DEBUG_
-#define _DEBUG_
+#ifndef _TRANSFE_
+#define _TRANSFE_
 
 /* uart to cp*/
-class debug
+class transfe
 {
 private:
     /* data */
@@ -11,12 +11,13 @@ private:
     struct termios options;
     int sig;
     int index;
-    int fp;
+    int uart_;
 public:
-    debug(uint32_t baud,char* port);
-    ~debug();
+    transfe(uint32_t baud,char* port);
+    ~transfe();
     void write_char(char *);
     void write_int(int data);
-    void debug::send_data(char rate_x,char rate_y,unsigned char quality);
+    void send_data(char rate_x,char rate_y,unsigned char quality);
+    int  ISuartReady();
 };
 #endif
