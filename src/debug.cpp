@@ -8,25 +8,31 @@
 //#define SERIAL_DEVICE "/dev/ttyS1"
 debug::debug(uint32_t baud,char *port)
 {  
-    int uart0_filestream =-1;
-    uart0_filestream = open(port, O_RDWR | O_NOCTTY | O_NDELAY);		//Open in non blocking read/write mode
-	if (uart0_filestream == -1)
-	{
+    int fp =-1;
+    uart_ = 1;
+    fp = open(port, O_RDWR | O_NOCTTY | O_NDELAY);		//Open in non blocking read/write mode
+	if (fp == -1)
+	{   
+        uart_ = 0;
 		printf("Error - Unable to open UART.  Ensure it is not in use by another application\n");
 	}
-   	tcgetattr(uart0_filestream, &options);
+   	tcgetattr(fp, &options);
 	options.c_cflag = baud | CS8 | CLOCAL | CREAD;		//<Set baud rate
 	options.c_iflag = IGNPAR;
 	options.c_oflag = 0;
 	options.c_lflag = 0;
-	tcflush(uart0_filestream, TCIFLUSH);
-	tcsetattr(uart0_filestream, TCSANOW, &options);
+	tcflush(fp, TCIFLUSH);
+	tcsetattr(fp, TCSANOW, &options);
 
 }
 debug::~debug()
 {
 }
 
+int debug::ISuartReady()
+{
+    return uart_;
+}
 void debug::reverse( char *str, int len)
 {
     int i = sig, j = len - 1, temp;
@@ -53,10 +59,10 @@ int debug::intToStr(int x,  char *str, int d)
 
 void debug::write_char(char *str)
 {
-    if (uart0_filestream = -1)return;
+    if (fp = -1)return;
     uint16_t len=0;
     while(str[len++]);
-	write(uart0_filestream,str,len);		
+	write(fp,str,len);		
 }
 
 void debug:: write_int(int x)
@@ -72,7 +78,7 @@ void debug:: write_int(int x)
         sig = 1;
     }
     int len = intToStr(x,str_,0);
-    write(uart0_filestream,str_,len);	
+    write(fp,str_,len);	
 }
 void debug::send_data(char rate_x,char rate_y,unsigned char quality)
 {
@@ -85,6 +91,6 @@ void debug::send_data(char rate_x,char rate_y,unsigned char quality)
    int16_t sum = rate_x + rate_y + quality;
    str[5] = *(char*)&sum[0];
    str[6] = *(char*)&sum[1];
-   write(uart0_filestream,str,7);	
+   write(fp,str,7);	
 }
 

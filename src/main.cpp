@@ -3,6 +3,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 #include "px4flow.hpp"
+#include "debug.hpp"
 #include <string> 
 #include <chrono>
 using namespace std;
@@ -13,9 +14,10 @@ using namespace cv;
 #define FLOW_VALUE_THRESHOLD 4000
 
 PX4Flow *px4flow;
+debug  *uart;
 int main(){
     px4flow = new PX4Flow(IMAGE_WIDTH,SEARCH_SIZE,FLOW_FEATURE_THRESHOLD,FLOW_VALUE_THRESHOLD);
-    
+    uart = new debug(9600,"/dev/ttyS1");
     //boot time
    //auto start = std::chrono::high_resolution_clock::now();
    
@@ -43,23 +45,26 @@ int main(){
            continue;  
         }
 	// convert color to gray
-        auto start = std::chrono::high_resolution_clock::now();
         cvtColor(frame,frame,COLOR_RGB2GRAY);
-        
+     
         int down_width = 128;
         int down_height =128;
         resize(frame,frame,Size(down_width, down_height),INTER_LINEAR);
-        
-        static float rate_x,rate_y; 
+    
         float flow_rate_x, flow_rate_y;
         int quality = px4flow->compute_flow(p_frame.data,frame.data,0,0,0, &flow_rate_x, &flow_rate_y);
-        rate_x +=0.7f*(flow_rate_x - rate_x);
-        rate_y +=0.7f*(flow_rate_y - rate_y);
-        //cout<<"size: "<<frame.size()<<"  len:"<<buff.size()<<endl;
-        auto elapsed = std::chrono::high_resolution_clock::now() - start;
-        long long time_now = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        float timee = time_now*0.000001;
-        cout<<(int)(rate_x*100)<<endl;
+  
+        flow_rate_x *=100;
+        flow_rate_y *=100;
+
+        if(flow_rate_x > 100)flow_rate_x =100;
+        esle if(flow_rate_x < 100)flow_rate_x = -100;
+
+        if(flow_rate_y > 100)flow_rate_y =100;
+        esle if(flow_rate_y < 100)flow_rate_y = -100;
+        
+        uart->send_data((char)flow_rate_x,(char)flow_rate_x,(char)quality);
+        //cout<<(int)(rate_x*100)<<endl;
 
   
 /*      

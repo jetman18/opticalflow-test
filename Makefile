@@ -1,8 +1,8 @@
 CC = g++
 CFLAGS = -g -Wall
-SRCS = ./src/testcv2.cpp ./src/px4flow.cpp
+SRCS = ./src/main.cpp ./src/px4flow.cpp ./src/debug.cpp
 INC = -I ./include
-PROG =  ./build/testcv2
+PROG =  ./build/main
 
 OPENCV = `pkg-config opencv4 --cflags --libs`
 LIBS = $(OPENCV)

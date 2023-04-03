@@ -11,6 +11,7 @@ private:
     struct termios options;
     int sig;
     int index;
+    int fp;
 public:
     debug(uint32_t baud,char* port);
     ~debug();
